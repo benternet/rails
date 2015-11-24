@@ -2,7 +2,6 @@ require 'helper'
 require 'active_job/arguments'
 require 'models/person'
 require 'active_support/core_ext/hash/indifferent_access'
-require 'jobs/kwargs_job'
 
 class ArgumentSerializationTest < ActiveSupport::TestCase
   setup do
@@ -80,12 +79,6 @@ class ArgumentSerializationTest < ActiveSupport::TestCase
     assert_raises ActiveJob::SerializationError do
       ActiveJob::Arguments.serialize [1, [Object.new]]
     end
-  end
-
-  test 'allows for keyword arguments' do
-    KwargsJob.perform_later(argument: 2)
-
-    assert_equal "Job with argument: 2", JobBuffer.last_value
   end
 
   test 'raises a friendly SerializationError for records without ids' do

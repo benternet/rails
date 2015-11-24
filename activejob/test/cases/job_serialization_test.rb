@@ -1,6 +1,8 @@
 require 'helper'
 require 'jobs/gid_job'
+require 'jobs/hashargs_job'
 require 'jobs/hello_job'
+require 'jobs/kwargs_job'
 require 'models/person'
 require 'json'
 
@@ -43,5 +45,29 @@ class JobSerializationTest < ActiveSupport::TestCase
     job = HelloJob.new
     job.deserialize({})
     assert_equal 'en', job.locale
+  end
+
+  test 'allows for keyword arguments' do
+    KwargsJob.perform_later(argument: 2)
+
+    assert_equal "Job with argument: 2", JobBuffer.last_value
+  end
+
+  test 'allows for hash arguments with symbol keys' do
+    HashargsJob.perform_later(argument: 2)
+
+    assert_equal 'Job with hash args: {:argument=>2}', JobBuffer.last_value
+  end
+
+  test 'allows for hash arguments with string keys' do
+    HashargsJob.perform_later('argument' => 2)
+
+    assert_equal 'Job with hash args: {"argument"=>2}', JobBuffer.last_value
+  end
+
+  test 'allows for nested hash arguments' do
+    HashargsJob.perform_later(arguments: { argument: 2 })
+
+    assert_equal 'Job with hash args: {:arguments=>{:argument=>2}}', JobBuffer.last_value
   end
 end

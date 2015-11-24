@@ -1,7 +1,9 @@
 require 'helper'
 require 'active_support/core_ext/time'
 require 'active_support/core_ext/date'
+require 'jobs/hashargs_job'
 require 'jobs/hello_job'
+require 'jobs/kwargs_job'
 require 'jobs/logging_job'
 require 'jobs/nested_job'
 require 'jobs/rescue_job'
@@ -250,6 +252,24 @@ class EnqueuedJobsTest < ActiveJob::TestCase
     end
 
     assert_equal 2, ActiveJob::Base.queue_adapter.enqueued_jobs.count
+  end
+
+  def test_assert_enqueued_job_with_kw_args
+    assert_enqueued_with(job: KwargsJob, args: [{ argument: 2 }]) do
+      KwargsJob.perform_later(argument: 2)
+    end
+  end
+
+  def test_assert_enqueued_job_with_hash_args
+    assert_enqueued_with(job: HashargsJob, args: [{ argument: 2 }]) do
+      HashargsJob.perform_later(argument: 2)
+    end
+  end
+
+  def test_assert_enqueued_job_with_nested_hash_args
+    assert_enqueued_with(job: HashargsJob, args: [{ arguments: { argument: 2 } }]) do
+      HashargsJob.perform_later(arguments: { argument: 2 })
+    end
   end
 end
 
